@@ -22,7 +22,8 @@ jobs:
         run: |
           sed -i "s|token: ''|token: '${{ secrets.GH_TOKEN }}'|g" dashboard.html
           sed -i "s|repo:  ''|repo:  'ssookssookji/My_hard'|g" dashboard.html
-
+          cat dashboard.html | grep "token:"
+          
       - name: Copy to docs
         run: |
           mkdir -p docs

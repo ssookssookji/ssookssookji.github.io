@@ -1,0 +1,23 @@
+name: Deploy Dashboard
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Inject token into HTML
+        run: |
+          sed -i "s|token: ''|token: '${{ secrets.GH_TOKEN }}'|g" dashboard.html
+          sed -i "s|repo:  ''|repo:  'ssookssookji/My_hard'|g" dashboard.html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages

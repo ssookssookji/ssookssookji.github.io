@@ -18,16 +18,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Inject token into HTML
+      - name: Inject token into HTML files
         run: |
           sed -i "s|token: ''|token: '${{ secrets.GH_TOKEN }}'|g" dashboard.html
           sed -i "s|repo:  ''|repo:  'ssookssookji/My_hard'|g" dashboard.html
-          cat dashboard.html | grep "token:"
-          
+          sed -i "s|token: ''|token: '${{ secrets.GH_TOKEN }}'|g" CHK_list.html
+          sed -i "s|repo:  ''|repo:  'ssookssookji/My_hard'|g" CHK_list.html
+
       - name: Copy to docs
         run: |
           mkdir -p docs
           cp dashboard.html docs/index.html
+          cp CHK_list.html docs/CHK_list.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

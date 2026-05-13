@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아침 교실 정비 점검</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#ffe2ea; --pink-d:#f4d7e0; --blue:#e7f1ff; --blue-d:#c9ddf5;
+  --yellow:#fff9ea; --yellow-d:#f0e0a0; --green:#eefaf1; --green-d:#b8e8c4;
+  --purple:#f7f5ff; --purple-d:#c4b5fd;
+  --tx:#5f5f5f; --ts:#7a7a7a; --tm:#9a9a9a;
+  --sage:#7a9e7e; --sage-d:#4a6b4e;
+  --r:20px; --rs:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Gowun Dodum',sans-serif;background:#f8fafc;color:var(--tx);min-height:100vh;padding:20px 16px 40px;}
+
+.page{max-width:640px;margin:0 auto;}
+
+/* 헤더 */
+.hero{background:linear-gradient(135deg,var(--pink),var(--blue));border-radius:24px;padding:24px 20px;text-align:center;margin-bottom:20px;border:2px solid var(--pink-d);}
+.hero h1{font-family:'Nanum Myeongjo',serif;font-size:1.6rem;color:#666;margin-bottom:8px;}
+.hero-date{font-size:0.84rem;color:var(--ts);}
+
+/* 작성자 입력 */
+.author-box{background:white;border-radius:var(--r);padding:16px 20px;margin-bottom:16px;border:1px solid #ececec;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.author-label{font-size:0.8rem;color:var(--ts);margin-bottom:6px;}
+.author-input{width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:var(--rs);font-family:'Gowun Dodum',sans-serif;font-size:0.96rem;outline:none;transition:border-color 0.18s;background:#fafafa;}
+.author-input:focus{border-color:var(--sage);}
+
+/* 섹션 */
+.section{background:white;border-radius:var(--r);padding:18px;margin-bottom:16px;border:1px solid #ececec;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.section-title{display:flex;align-items:center;gap:8px;font-size:1.05rem;font-weight:700;color:#6677a0;margin-bottom:14px;}
+
+/* 체크 카드 */
+.check-card{border-radius:16px;padding:14px 16px;margin-bottom:10px;}
+.check-card h3{font-size:0.92rem;font-weight:700;color:#666;margin-bottom:10px;}
+.pink-card{background:var(--pink);}
+.yellow-card{background:var(--yellow);}
+.blue-card{background:var(--blue);}
+.green-card{background:var(--green);}
+
+/* 체크 아이템 */
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,0.05);cursor:pointer;transition:all 0.15s;}
+.check-item:last-child{border-bottom:none;padding-bottom:0;}
+.check-item:first-of-type{padding-top:0;}
+.check-box{width:26px;height:26px;border:2px solid #ccc;border-radius:7px;background:white;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.18s;font-size:0;margin-top:1px;}
+.check-box.checked{background:var(--sage);border-color:var(--sage-d);color:white;font-size:1rem;}
+.check-text{font-size:0.88rem;line-height:1.5;color:var(--tx);flex:1;}
+.check-text strong{display:block;font-size:0.82rem;color:#555;margin-bottom:2px;}
+.check-text span{font-size:0.8rem;color:var(--ts);}
+.check-item.checked-item .check-text{color:#aaa;text-decoration:line-through;}
+
+/* 월요일 박스 */
+.monday-box{background:#fff8dc;border-radius:14px;padding:12px 14px;border:1px dashed var(--yellow-d);margin-top:4px;}
+.monday-title{font-weight:700;color:#9b7b25;margin-bottom:10px;font-size:0.84rem;}
+
+/* 흐름 */
+.flow-wrap{display:flex;gap:10px;align-items:stretch;margin-top:8px;}
+.flow-box{flex:1;background:var(--purple);border-radius:14px;padding:14px;text-align:center;border:1px solid var(--purple-d);}
+.flow-box h4{color:#7b6cb5;font-size:0.88rem;margin-bottom:6px;}
+.flow-box p{font-size:0.78rem;line-height:1.6;color:var(--ts);}
+.arrow{display:flex;align-items:center;font-size:1.4rem;color:var(--purple-d);}
+
+/* 특이사항 */
+.special-box{background:white;border-radius:var(--r);padding:18px;margin-bottom:16px;border:1px solid #ececec;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.special-label{font-size:0.9rem;font-weight:700;color:#6677a0;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.special-textarea{width:100%;min-height:100px;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:var(--rs);font-family:'Gowun Dodum',sans-serif;font-size:0.88rem;color:var(--tx);outline:none;resize:vertical;transition:border-color 0.18s;background:#fafafa;line-height:1.7;}
+.special-textarea:focus{border-color:var(--sage);}
+
+/* 진행률 */
+.progress-bar-wrap{background:white;border-radius:var(--r);padding:14px 18px;margin-bottom:16px;border:1px solid #ececec;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.progress-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:0.82rem;color:var(--ts);}
+.progress-count{font-weight:700;color:var(--sage-d);}
+.progress-bar{height:8px;background:#f0f0f0;border-radius:10px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--sage),var(--sage-d));border-radius:10px;transition:width 0.3s ease;}
+
+/* 제출 버튼 */
+.submit-area{position:sticky;bottom:16px;z-index:100;padding:0;}
+.submit-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--sage),var(--sage-d));color:white;border:none;border-radius:var(--r);font-family:'Nanum Myeongjo',serif;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 20px rgba(74,107,78,0.35);transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.submit-btn:hover{opacity:0.92;transform:translateY(-1px);}
+.submit-btn:active{transform:translateY(0);}
+.submit-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+/* 경고 모달 */
+.modal-bg{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.22s;}
+.modal-bg.on{opacity:1;pointer-events:all;}
+.modal{background:white;border-radius:20px;padding:24px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,0.15);transform:translateY(8px);transition:transform 0.22s;text-align:center;}
+.modal-bg.on .modal{transform:translateY(0);}
+.modal-icon{font-size:2.5rem;margin-bottom:12px;}
+.modal h3{font-family:'Nanum Myeongjo',serif;font-size:1.1rem;color:#444;margin-bottom:8px;}
+.modal p{font-size:0.84rem;color:var(--ts);line-height:1.6;margin-bottom:18px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btns button{flex:1;padding:11px;border-radius:12px;border:none;font-family:'Gowun Dodum',sans-serif;font-size:0.9rem;cursor:pointer;transition:all 0.18s;}
+.btn-cancel{background:#f0f0f0;color:#666;}
+.btn-cancel:hover{background:#e0e0e0;}
+.btn-confirm{background:linear-gradient(135deg,var(--sage),var(--sage-d));color:white;}
+.btn-confirm:hover{opacity:0.88;}
+
+/* 완료 화면 */
+.success-screen{display:none;position:fixed;inset:0;z-index:999;background:linear-gradient(135deg,#eefaf1,#e7f1ff);align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:20px;}
+.success-screen.on{display:flex;}
+.success-icon{font-size:4rem;animation:pop 0.5s ease;}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.success-title{font-family:'Nanum Myeongjo',serif;font-size:1.5rem;color:#4a6b4e;}
+.success-sub{font-size:0.88rem;color:var(--ts);line-height:1.7;}
+.success-back{margin-top:8px;padding:12px 28px;background:linear-gradient(135deg,var(--sage),var(--sage-d));color:white;border:none;border-radius:14px;font-family:'Gowun Dodum',sans-serif;font-size:0.96rem;cursor:pointer;}
+
+/* 토스트 */
+#toast{position:fixed;bottom:90px;right:16px;background:#444;color:#fff;padding:10px 16px;border-radius:11px;font-size:0.82rem;z-index:9999;transform:translateY(60px);opacity:0;transition:all 0.28s;}
+#toast.on{transform:translateY(0);opacity:1;}
+
+@media(max-width:480px){
+  .flow-wrap{flex-direction:column;}
+  .arrow{justify-content:center;transform:rotate(90deg);}
+  body{padding:14px 12px 36px;}
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- 헤더 -->
+  <div class="hero">
+    <h1>🌼 아침 교실 정비 점검 🌼</h1>
+    <div class="hero-date" id="today-date"></div>
+  </div>
+
+  <!-- 작성자 -->
+  <div class="author-box">
+    <div class="author-label">✍️ 작성자</div>
+    <input class="author-input" id="author" placeholder="이름을 입력하세요" maxlength="20">
+  </div>
+
+  <!-- 진행률 -->
+  <div class="progress-bar-wrap">
+    <div class="progress-info">
+      <span>체크 진행률</span>
+      <span class="progress-count" id="prog-count">0 / 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <!-- 기본 점검 -->
+  <div class="section">
+    <div class="section-title">🧺 아침 교실 정비 체크</div>
+    <div class="check-card pink-card">
+      <h3>✔ 기본 점검</h3>
+      <div class="check-item" data-id="c1" onclick="toggle(this)">
+        <div class="check-box" id="box-c1"></div>
+        <div class="check-text">기저귀 확인 및 채우기</div>
+      </div>
+      <div class="check-item" data-id="c2" onclick="toggle(this)">
+        <div class="check-box" id="box-c2"></div>
+        <div class="check-text">식수 준비</div>
+      </div>
+      <div class="check-item" data-id="c3" onclick="toggle(this)">
+        <div class="check-box" id="box-c3"></div>
+        <div class="check-text">턱받이 준비</div>
+      </div>
+      <div class="check-item" data-id="c4" onclick="toggle(this)">
+        <div class="check-box" id="box-c4"></div>
+        <div class="check-text">수건과 행주 준비</div>
+      </div>
+    </div>
+
+    <div class="check-card yellow-card">
+      <h3>📅 월요일 추가 점검</h3>
+      <div class="monday-box">
+        <div class="monday-title">월요일에 추가로 해야 하는 목록</div>
+        <div class="check-item" data-id="m1" onclick="toggle(this)">
+          <div class="check-box" id="box-m1"></div>
+          <div class="check-text">쓰레기통 세팅</div>
+        </div>
+        <div class="check-item" data-id="m2" onclick="toggle(this)">
+          <div class="check-box" id="box-m2"></div>
+          <div class="check-text">세면대 물막이판 세팅</div>
+        </div>
+        <div class="check-item" data-id="m3" onclick="toggle(this)">
+          <div class="check-box" id="box-m3"></div>
+          <div class="check-text">휴식매트 커버 씌우기</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 일과 중 영아관리 -->
+  <div class="section">
+    <div class="section-title">👶 일과 중 영아관리</div>
+    <div class="check-card blue-card">
+      <h3>📝 시간대별 영아관리</h3>
+      <div class="check-item" data-id="d1" onclick="toggle(this)">
+        <div class="check-box" id="box-d1"></div>
+        <div class="check-text">
+          <strong>등원 전</strong>
+          <span>등·하원 시 특이사항 공유 후 칠판 체크 / 키즈노트 확인</span>
+        </div>
+      </div>
+      <div class="check-item" data-id="d2" onclick="toggle(this)">
+        <div class="check-box" id="box-d2"></div>
+        <div class="check-text">
+          <strong>등원 직후</strong>
+          <span>영아 건강상태 및 상처 등 컨디션 육안으로 확인하기</span>
+        </div>
+      </div>
+      <div class="check-item" data-id="d3" onclick="toggle(this)">
+        <div class="check-box" id="box-d3"></div>
+        <div class="check-text">
+          <strong>오전간식 후</strong>
+          <span>영아 로션, 선크림 바르기</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-card green-card">
+      <h3>🎒 영아 소지품 챙기기</h3>
+      <div class="check-item" data-id="g1" onclick="toggle(this)">
+        <div class="check-box" id="box-g1"></div>
+        <div class="check-text">
+          <strong>낮잠시간 중 혹은 오후간식 후</strong>
+          <span>영아 가방 확인하기</span>
+        </div>
+      </div>
+      <div class="check-item" data-id="g2" onclick="toggle(this)">
+        <div class="check-box" id="box-g2"></div>
+        <div class="check-text">물통, 식판, 여벌옷 등 영아 소지품 챙기기</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 하루 흐름 -->
+  <div class="section">
+    <div class="section-title">🌷 하루 관리 흐름</div>
+    <div class="flow-wrap">
+      <div class="flow-box"><h4>☀ 아침</h4><p>교실 정비<br>환경 점검<br>준비물 확인</p></div>
+      <div class="arrow">➜</div>
+      <div class="flow-box"><h4>🧸 일과 중</h4><p>특이사항 공유<br>영아 상태 확인<br>키즈노트 체크</p></div>
+      <div class="arrow">➜</div>
+      <div class="flow-box"><h4>🌙 하원 전</h4><p>가방 및 소지품 확인<br>물통·식판 챙기기<br>전달사항 점검</p></div>
+    </div>
+  </div>
+
+  <!-- 일일 특이사항 -->
+  <div class="special-box">
+    <div class="special-label">📌 일일 특이사항</div>
+    <textarea class="special-textarea" id="special" placeholder="오늘의 특이사항을 자유롭게 입력하세요. (공란도 괜찮아요)"></textarea>
+  </div>
+
+  <!-- 제출 버튼 -->
+  <div class="submit-area">
+    <button class="submit-btn" id="submit-btn" onclick="trySubmit()">
+      ✅ 제출하기
+    </button>
+  </div>
+</div>
+
+<!-- 미체크 경고 모달 -->
+<div class="modal-bg" id="warn-modal">
+  <div class="modal">
+    <div class="modal-icon">⚠️</div>
+    <h3>미완료 항목이 있어요</h3>
+    <p id="warn-msg">아직 체크되지 않은 항목이 있습니다.<br>그래도 제출하시겠어요?</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">다시 확인</button>
+      <button class="btn-confirm" onclick="doSubmit()">제출하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 완료 화면 -->
+<div class="success-screen" id="success-screen">
+  <div class="success-icon">🌼</div>
+  <div class="success-title">제출 완료!</div>
+  <div class="success-sub" id="success-msg"></div>
+  <button class="success-back" onclick="location.href='dashboard.html'">← 대시보드로 돌아가기</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ⚙️ 설정 — 여기만 수정하세요!
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const CONFIG = {
+  token: '',        // 예: 'ghp_xxxxxxxxxxxxxxxxxxxx'
+  repo:  '',        // 예: 'ssookssookji/My_hard'
+};
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const API = 'https://api.github.com';
+const CHECKS = {};
+const TOTAL_IDS = ['c1','c2','c3','c4','m1','m2','m3','d1','d2','d3','g1','g2'];
+
+// 오늘 날짜
+const now = new Date();
+document.getElementById('today-date').textContent =
+  now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+
+// 진행률
+function updateProgress(){
+  const checked = TOTAL_IDS.filter(id=>CHECKS[id]).length;
+  const total = TOTAL_IDS.length;
+  document.getElementById('prog-count').textContent = `${checked} / ${total}`;
+  document.getElementById('prog-fill').style.width = `${Math.round(checked/total*100)}%`;
+}
+updateProgress();
+
+// 체크 토글
+function toggle(el){
+  const id = el.dataset.id;
+  CHECKS[id] = !CHECKS[id];
+  const box = el.querySelector('.check-box');
+  if(CHECKS[id]){
+    box.classList.add('checked');
+    box.textContent = '✓';
+    el.classList.add('checked-item');
+  } else {
+    box.classList.remove('checked');
+    box.textContent = '';
+    el.classList.remove('checked-item');
+  }
+  updateProgress();
+}
+
+// 제출 시도
+function trySubmit(){
+  const author = document.getElementById('author').value.trim();
+  if(!author){ toast('작성자 이름을 입력해주세요'); document.getElementById('author').focus(); return; }
+  const unchecked = TOTAL_IDS.filter(id=>!CHECKS[id]);
+  if(unchecked.length > 0){
+    document.getElementById('warn-msg').textContent = `아직 ${unchecked.length}개 항목이 체크되지 않았어요.\n그래도 제출하시겠어요?`;
+    document.getElementById('warn-modal').classList.add('on');
+  } else {
+    doSubmit();
+  }
+}
+
+function closeModal(){ document.getElementById('warn-modal').classList.remove('on'); }
+
+// 실제 제출
+async function doSubmit(){
+  closeModal();
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '제출 중...';
+  toast('GitHub에 저장 중...');
+
+  const author = document.getElementById('author').value.trim();
+  const special = document.getElementById('special').value.trim();
+  const dateStr = `${now.getFullYear()}${p2(now.getMonth()+1)}${p2(now.getDate())}`;
+  const fileName = `(${author})_${dateStr}.json`;
+
+  const data = {
+    author, date: now.toISOString(),
+    dateLabel: now.toLocaleDateString('ko-KR'),
+    checks: {},
+    special,
+    submittedAt: new Date().toISOString()
+  };
+
+  const labels = {
+    c1:'기저귀 확인 및 채우기', c2:'식수 준비', c3:'턱받이 준비', c4:'수건과 행주 준비',
+    m1:'쓰레기통 세팅', m2:'세면대 물막이판 세팅', m3:'휴식매트 커버 씌우기',
+    d1:'등원 전 - 특이사항 공유/키즈노트 확인', d2:'등원 직후 - 영아 컨디션 확인', d3:'오전간식 후 - 로션/선크림',
+    g1:'낮잠/오후간식 후 - 영아 가방 확인', g2:'영아 소지품 챙기기'
+  };
+  TOTAL_IDS.forEach(id=>{ data.checks[labels[id]] = CHECKS[id] ? '✅' : '❌'; });
+
+  try {
+    const path = `Day_File/${fileName}`;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+    const ex = await ghGet(path);
+    const body = { message: `submit checklist: ${fileName}`, content };
+    if(ex) body.sha = ex.sha;
+    const r = await fetch(`${API}/repos/${CONFIG.repo}/contents/${path}`, {
+      method: 'PUT',
+      headers: { Authorization: `token ${CONFIG.token}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if(!r.ok) throw new Error();
+
+    // 완료 화면
+    document.getElementById('success-msg').innerHTML =
+      `<strong>${author}</strong> 선생님의 오늘 체크리스트가<br>저장되었어요 🌿<br><br><span style="font-size:0.8rem;color:#aaa">${fileName}</span>`;
+    document.getElementById('success-screen').classList.add('on');
+  } catch(e){
+    toast('저장 실패 😢 토큰/저장소를 확인해주세요');
+    btn.disabled = false;
+    btn.textContent = '✅ 제출하기';
+  }
+}
+
+async function ghGet(p){
+  const r = await fetch(`${API}/repos/${CONFIG.repo}/contents/${p}`, {
+    headers: { Authorization: `token ${CONFIG.token}`, Accept: 'application/vnd.github.v3+json' }
+  });
+  if(r.status===404) return null;
+  if(!r.ok) throw new Error();
+  return r.json();
+}
+
+function p2(n){ return String(n).padStart(2,'0'); }
+
+let tt;
+function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove('on'),2500); }
+</script>
+</body>
+</html>

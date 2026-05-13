@@ -6,6 +6,7 @@
 <title>아침 교실 정비 점검</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
@@ -341,7 +342,7 @@ function trySubmit(){
 
 function closeModal(){ document.getElementById('warn-modal').classList.remove('on'); }
 
-// PDF 생성 후 GitHub 업로드
+// PDF 생성 후 GitHub 업로드 (html2canvas 방식 — 한글 깨짐 없음)
 async function doSubmit(){
   closeModal();
   const btn = document.getElementById('submit-btn');
@@ -350,148 +351,39 @@ async function doSubmit(){
   toast('PDF 생성 중...');
 
   const author = document.getElementById('author').value.trim();
-  const special = document.getElementById('special').value.trim();
   const dateStr = `${now.getFullYear()}${p2(now.getMonth()+1)}${p2(now.getDate())}`;
-  const dateLabel = now.toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric',weekday:'long'});
   const fileName = `(${author})_${dateStr}.pdf`;
 
-  const labels = {
-    c1:'기저귀 확인 및 채우기', c2:'식수 준비', c3:'턱받이 준비', c4:'수건과 행주 준비',
-    m1:'쓰레기통 세팅', m2:'세면대 물막이판 세팅', m3:'휴식매트 커버 씌우기',
-    d1:'등원 전 — 특이사항 공유/키즈노트 확인', d2:'등원 직후 — 영아 컨디션 확인', d3:'오전간식 후 — 로션/선크림',
-    g1:'낮잠/오후간식 후 — 영아 가방 확인', g2:'영아 소지품 챙기기'
-  };
-
   try {
-    // jsPDF 로드
+    // 제출 버튼 영역 숨기고 캡처
+    document.querySelector('.submit-area').style.display = 'none';
+
+    const canvas = await html2canvas(document.querySelector('.page'), {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#f8fafc',
+      logging: false,
+    });
+
+    document.querySelector('.submit-area').style.display = '';
+
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const imgData = canvas.toDataURL('image/png');
+    const imgW = 210;
+    const imgH = (canvas.height * imgW) / canvas.width;
+    const doc = new jsPDF({ orientation: imgH > 297 ? 'portrait' : 'portrait', unit:'mm', format:'a4' });
 
-    // 한글 폰트 없으므로 기본 폰트 사용 + 한글은 유니코드 처리
-    // 배경
-    doc.setFillColor(255, 226, 234);
-    doc.roundedRect(10, 10, 190, 28, 5, 5, 'F');
-
-    // 제목
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(16);
-    doc.setTextColor(100,100,100);
-    doc.text('Morning Classroom Checklist', 105, 22, {align:'center'});
-    doc.setFontSize(10);
-    doc.setFont('helvetica','normal');
-    doc.setTextColor(120,120,120);
-    doc.text(`${dateLabel}`, 105, 30, {align:'center'});
-    doc.text(`Author: ${author}`, 105, 36, {align:'center'});
-
-    let y = 48;
-
-    // 섹션 그리기 함수
-    function drawSection(title, items, bgColor){
-      doc.setFillColor(...bgColor);
-      doc.roundedRect(10, y, 190, 8, 3, 3, 'F');
-      doc.setFont('helvetica','bold');
-      doc.setFontSize(11);
-      doc.setTextColor(80,80,120);
-      doc.text(title, 14, y+5.5);
-      y += 12;
-
-      items.forEach(({id, label, sub})=>{
-        const checked = CHECKS[id];
-        // 체크박스
-        doc.setDrawColor(180,180,180);
-        doc.setFillColor(checked ? 122 : 255, checked ? 158 : 255, checked ? 126 : 255);
-        doc.roundedRect(14, y-3.5, 5, 5, 1, 1, checked ? 'F' : 'S');
-        if(checked){
-          doc.setTextColor(255,255,255);
-          doc.setFontSize(8);
-          doc.text('v', 15.5, y+0.5);
-        }
-        // 텍스트
-        doc.setFont('helvetica', checked ? 'normal' : 'normal');
-        doc.setFontSize(10);
-        doc.setTextColor(checked ? 160 : 60, checked ? 160 : 60, checked ? 160 : 60);
-        doc.text(label, 22, y+0.5);
-        if(sub){
-          doc.setFontSize(8);
-          doc.setTextColor(150,150,150);
-          doc.text(sub, 22, y+4.5);
-          y += 9;
-        } else {
-          y += 7;
-        }
-      });
-      y += 4;
+    // 페이지 여러 장 처리
+    const pageH = 297;
+    let yOffset = 0;
+    while(yOffset < imgH) {
+      if(yOffset > 0) doc.addPage();
+      doc.addImage(imgData, 'PNG', 0, -yOffset, imgW, imgH);
+      yOffset += pageH;
     }
 
-    // 기본 점검
-    drawSection('Basic Check', [
-      {id:'c1',label:'Diaper check & refill (기저귀 확인 및 채우기)'},
-      {id:'c2',label:'Drinking water prep (식수 준비)'},
-      {id:'c3',label:'Bib ready (턱받이 준비)'},
-      {id:'c4',label:'Towels & cloths ready (수건과 행주 준비)'},
-    ], [255, 226, 234]);
-
-    // 월요일 추가
-    drawSection('Monday Extra Check', [
-      {id:'m1',label:'Trash bin setup (쓰레기통 세팅)'},
-      {id:'m2',label:'Sink stopper setup (세면대 물막이판 세팅)'},
-      {id:'m3',label:'Rest mat cover (휴식매트 커버 씌우기)'},
-    ], [255, 249, 234]);
-
-    // 영아관리
-    drawSection('Infant Management', [
-      {id:'d1',label:'Before arrival: Handover & KidsNote check',sub:'(등원 전: 특이사항 공유/키즈노트 확인)'},
-      {id:'d2',label:'After arrival: Visual health check',sub:'(등원 직후: 영아 건강상태 육안 확인)'},
-      {id:'d3',label:'After morning snack: Lotion & sunscreen',sub:'(오전간식 후: 로션, 선크림 바르기)'},
-    ], [231, 241, 255]);
-
-    // 소지품
-    drawSection('Belongings Check', [
-      {id:'g1',label:'Naptime/afternoon: Check baby bags',sub:'(낮잠/오후간식 후: 영아 가방 확인)'},
-      {id:'g2',label:'Water bottle, tray, spare clothes',sub:'(물통, 식판, 여벌옷 등 소지품 챙기기)'},
-    ], [238, 250, 241]);
-
-    // 진행률
-    const checked = TOTAL_IDS.filter(id=>CHECKS[id]).length;
-    doc.setFillColor(240,240,240);
-    doc.roundedRect(10, y, 190, 10, 3, 3, 'F');
-    doc.setFillColor(122,158,126);
-    const pw = Math.round(checked/TOTAL_IDS.length*180);
-    if(pw>0) doc.roundedRect(10, y, pw+10, 10, 3, 3, 'F');
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(9);
-    doc.setTextColor(255,255,255);
-    doc.text(`${checked}/${TOTAL_IDS.length} completed`, 105, y+6.5, {align:'center'});
-    y += 16;
-
-    // 특이사항
-    doc.setFillColor(255,248,220);
-    doc.roundedRect(10, y, 190, special ? Math.max(20, special.length/50*6+20) : 20, 3, 3, 'F');
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(10);
-    doc.setTextColor(100,100,60);
-    doc.text('Special Notes (일일 특이사항)', 14, y+7);
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(9);
-    doc.setTextColor(120,120,80);
-    if(special){
-      const lines = doc.splitTextToSize(special, 180);
-      doc.text(lines, 14, y+13);
-      y += Math.max(24, lines.length*5+18);
-    } else {
-      doc.text('(없음)', 14, y+13);
-      y += 24;
-    }
-
-    // 푸터
-    doc.setFontSize(8);
-    doc.setTextColor(180,180,180);
-    doc.text(`Submitted: ${new Date().toLocaleString('ko-KR')}  |  ${author} 선생님`, 105, 285, {align:'center'});
-
-    // PDF → base64
     const pdfBase64 = doc.output('datauristring').split(',')[1];
 
-    // GitHub 업로드
     toast('GitHub에 저장 중...');
     const path = `Day_File/${fileName}`;
     const ex = await ghGet(path);
@@ -504,13 +396,13 @@ async function doSubmit(){
     });
     if(!r.ok) throw new Error();
 
-    // 완료 화면
     document.getElementById('success-msg').innerHTML =
       `<strong>${author}</strong> 선생님의 오늘 체크리스트가<br>PDF로 저장되었어요 🌿<br><br><span style="font-size:0.8rem;color:#aaa">${fileName}</span>`;
     document.getElementById('success-screen').classList.add('on');
 
   } catch(e){
     console.error(e);
+    document.querySelector('.submit-area').style.display = '';
     toast('저장 실패 😢 다시 시도해주세요');
     btn.disabled = false;
     btn.textContent = '✅ 제출하기';
